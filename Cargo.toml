@@ -1,0 +1,43 @@
+[package]
+name = "keyboard-cipher-core"
+version = "0.1.0"
+license = "GPL-3.0-only"
+edition = "2021"
+rust-version = "1.75"
+description = "Cryptographic core and message format of MusyBoard, an end-to-end encrypting keyboard"
+publish = false
+
+[dependencies]
+# All pure Rust: no `cc`, no linking to C code.
+x25519-dalek = { version = "2", default-features = false, features = ["static_secrets", "zeroize"] }
+# XChaCha20Poly1305 is exported without a dedicated feature in 0.10.
+chacha20poly1305 = { version = "0.10", default-features = false, features = ["alloc"] }
+hkdf = "0.12"
+sha2 = { version = "0.10", default-features = false }
+zeroize = { version = "1", features = ["derive"] }
+rand_core = "0.6"
+thiserror = "2"
+# Argon2id derives the backup key from a passphrase. It must be a SLOW KDF:
+# a backup leaves the device, so whoever gets it can try passphrases
+# offline and in parallel. HKDF, used for messages, is fast on purpose.
+argon2 = { version = "0.5", default-features = false, features = ["alloc", "zeroize"] }
+
+[dev-dependencies]
+# Deterministic RNG for the format KATs: test vectors must be reproducible,
+# so the seed is fixed and the RNG is injected.
+rand_chacha = "0.3"
+hex-literal = "0.4"
+zbase32 = "0.1.2"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+# `clippy::panic` does not fire on `todo!()`, so without this a `todo!()`
+# could reach a release.
+todo = "deny"
+indexing_slicing = "deny"
+arithmetic_side_effects = "deny"

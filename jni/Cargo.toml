@@ -1,0 +1,46 @@
+# Separate crate, outside the core workspace. Here `unsafe` is unavoidable:
+# the symbols exported to the JVM are `extern "system"` and their correctness
+# depends on the JNI contract, not on the type system. The core stays
+# `#![forbid(unsafe_code)]`.
+[workspace]
+
+[package]
+name = "keyboard-cipher-jni"
+version = "0.1.0"
+license = "GPL-3.0-only"
+edition = "2021"
+rust-version = "1.75"
+description = "JNI bridge between keyboard-cipher-core and the Android JVM"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+keyboard-cipher-core = { path = ".." }
+jni = "0.21"
+# OsRng: entropy comes from the OS, never from an in-app seeded PRNG.
+rand_core = { version = "0.6", features = ["getrandom"] }
+zeroize = { version = "1", features = ["derive"] }
+
+[profile.release]
+# Strip debug info, which embeds absolute paths of the build machine. This
+# keeps the build reproducible: a `.so` that changes with where it was built
+# cannot be verified by anyone.
+#
+# `"debuginfo"`, not `"symbols"`: the dynamic symbols exported to the JVM
+# (`Java_helium314_keyboard_cipher_CipherCore_native...`) must stay, because
+# JNI resolves them by name.
+strip = "debuginfo"
+
+# Do NOT add `panic = "abort"`: every JNI entry point is wrapped in
+# `catch_unwind`, which stops working with abort. A panic would kill the
+# keyboard process instead of returning an error code to the JVM.
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+todo = "deny"
+indexing_slicing = "deny"
+arithmetic_side_effects = "deny"

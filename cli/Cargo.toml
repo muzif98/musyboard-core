@@ -1,0 +1,38 @@
+# Separate crate, outside the core workspace: the core does no I/O, and this
+# binary does little else.
+#
+# Purpose: a SECOND party to talk to. With the keyboard alone you can only
+# encrypt to yourself, which tests nothing that needs two identities: identity
+# cards, first contact, key change, label conflict, wrong recipient.
+[workspace]
+
+[package]
+name = "keyboard-cipher-cli"
+version = "0.1.0"
+license = "GPL-3.0-only"
+edition = "2021"
+rust-version = "1.75"
+description = "Command-line tool for keyboard-cipher: a second identity on a PC, encrypt and decrypt"
+publish = false
+
+[lib]
+name = "keyboard_cipher_cli"
+path = "src/lib.rs"
+
+[[bin]]
+name = "kc"
+path = "src/main.rs"
+
+[dependencies]
+keyboard-cipher-core = { path = ".." }
+# OsRng: entropy comes from the OS, never from an in-app seeded PRNG.
+rand_core = { version = "0.6", features = ["getrandom"] }
+zeroize = "1"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+todo = "deny"
+indexing_slicing = "deny"
+arithmetic_side_effects = "deny"

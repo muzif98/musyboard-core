@@ -1,0 +1,30 @@
+# Separate crate, like `jni/` and `cli/`: the core does no I/O and no UI.
+#
+# egui/eframe rather than a native toolkit: a single binary with nothing to
+# install, the same code on Linux and Windows, and it links the core directly.
+# No bridge and no second implementation of the format.
+[workspace]
+
+[package]
+name = "keyboard-cipher-gui"
+version = "0.1.0"
+license = "GPL-3.0-only"
+edition = "2021"
+description = "Desktop app to encrypt and decrypt MusyBoard messages"
+publish = false
+
+[[bin]]
+name = "keyboard-cipher"
+path = "src/main.rs"
+
+[dependencies]
+keyboard-cipher-core = { path = ".." }
+keyboard-cipher-cli = { path = "../cli" }
+eframe = "0.29"
+# System clipboard access: eframe only exposes user paste, and the app needs
+# to notice what was copied elsewhere.
+arboard = "3"
+# Native file dialog, used to rebuild a chat from an exported file.
+rfd = "0.15"
+# OsRng: entropy comes from the OS, never from an in-app seeded PRNG.
+rand_core = { version = "0.6", features = ["getrandom"] }

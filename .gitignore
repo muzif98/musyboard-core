@@ -1,0 +1,23 @@
+# Rust build output
+/target
+jni/target/
+cli/target/
+gui/target/
+
+# Cargo.lock is versioned on purpose: builds must be reproducible and
+# dependency versions pinned.
+
+# Fuzzing: the corpus is regenerable and grows without bound. Crash
+# artefacts are NOT ignored: they reproduce a bug.
+fuzz/target
+fuzz/corpus
+
+# Editors and OS
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
